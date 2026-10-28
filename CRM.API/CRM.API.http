@@ -1,0 +1,114 @@
+@CRM.API_HostAddress = http://localhost:5191
+@token = paste_jwt_here
+
+### Health
+GET {{CRM.API_HostAddress}}/api/health
+Accept: application/json
+
+###
+### SoftOnCloud login via CRM (Auth v2.5: login + resolve-context productId=28)
+POST {{CRM.API_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "orgId": 100019,
+  "email": "your@email.com",
+  "password": "your-password",
+  "rememberMe": true
+}
+
+###
+### Countries
+GET {{CRM.API_HostAddress}}/api/auth/countries
+Accept: application/json
+
+###
+### Me
+GET {{CRM.API_HostAddress}}/api/auth/me
+Authorization: Bearer {{token}}
+
+###
+### Resolve-context refresh (productId from server config 28 — not from query)
+GET {{CRM.API_HostAddress}}/api/auth/resolve-context
+Authorization: Bearer {{token}}
+
+###
+### Session-status probe (PASSWORD_CHANGED / SESSION_ENDED)
+GET {{CRM.API_HostAddress}}/api/auth/session-status
+Authorization: Bearer {{token}}
+
+###
+### Session renew
+POST {{CRM.API_HostAddress}}/api/auth/session-renew
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{}
+
+###
+### Logout
+POST {{CRM.API_HostAddress}}/api/auth/logout
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "reason": "session_ended"
+}
+
+###
+### Activities list
+GET {{CRM.API_HostAddress}}/api/activities?limit=50&offset=0
+Authorization: Bearer {{token}}
+
+###
+### Activity lookups
+GET {{CRM.API_HostAddress}}/api/activities/lookups
+Authorization: Bearer {{token}}
+
+###
+### Activity calendar (month range)
+GET {{CRM.API_HostAddress}}/api/activities/calendar?startFrom=2026-10-01T00:00:00&startTo=2026-11-01T00:00:00
+Authorization: Bearer {{token}}
+
+###
+### Create activity
+POST {{CRM.API_HostAddress}}/api/activities
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "subject": "Follow-up call with Acme Solar",
+  "actType": "CALL",
+  "startTime": "2026-10-27T11:00:00",
+  "endTime": "2026-10-27T11:30:00",
+  "callNumber": "9988776655",
+  "callNotes": "Discuss AMC quote",
+  "employeeId": null
+}
+
+###
+### Tasks list
+GET {{CRM.API_HostAddress}}/api/tasks?limit=50&offset=0
+Authorization: Bearer {{token}}
+
+###
+### Task lookups
+GET {{CRM.API_HostAddress}}/api/tasks/lookups
+Authorization: Bearer {{token}}
+
+###
+### Create task
+POST {{CRM.API_HostAddress}}/api/tasks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Send AMC quotation to Acme Solar",
+  "taskType": "FOLLOW_UP",
+  "priority": "HIGH",
+  "status": "TO_DO",
+  "dueDate": "2026-10-30",
+  "startDate": "2026-10-28",
+  "employeeId": null,
+  "notes": "Attach quote after demo"
+}

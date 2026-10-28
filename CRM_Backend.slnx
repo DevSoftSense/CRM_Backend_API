@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="CRM.API/CRM.API.csproj" Id="a1b2c3d4-e5f6-7890-abcd-ef1234567890" />
+  <Project Path="CRM.Application/CRM.Application.csproj" Id="b2c3d4e5-f6a7-8901-bcde-f12345678901" />
+  <Project Path="CRM.Domain/CRM.Domain.csproj" Id="c3d4e5f6-a7b8-9012-cdef-123456789012" />
+  <Project Path="CRM.Infrastructure/CRM.Infrastructure.csproj" Id="d4e5f6a7-b8c9-0123-def0-234567890123" />
+</Solution>
