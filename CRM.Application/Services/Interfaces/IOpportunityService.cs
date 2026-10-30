@@ -11,6 +11,6 @@ public interface IOpportunityService
     Task<OpportunityDetailDto> UpdateOpportunityAsync(int orgId, long opportunityId, long updatedBy, UpdateOpportunityRequest request, CancellationToken cancellationToken = default);
     Task<DeactivateOpportunityResponse> DeactivateOpportunityAsync(int orgId, long opportunityId, long updatedBy, CancellationToken cancellationToken = default);
     Task<OpportunityLookupsResponse> GetLookupsAsync(int orgId, CancellationToken cancellationToken = default);
-    Task<PipelineBoardResponse> GetPipelineAsync(int orgId, string? search, CancellationToken cancellationToken = default);
+    Task<PipelineBoardResponse> GetPipelineAsync(int orgId, string? search, int? ownerEmployeeId = null, DateOnly? fromDate = null, DateOnly? toDate = null, CancellationToken cancellationToken = default);
     Task<OpportunityDetailDto> MoveStageAsync(int orgId, long opportunityId, int stageId, long updatedBy, CancellationToken cancellationToken = default);
 }

@@ -239,12 +239,19 @@ public sealed class OpportunityRepository : IOpportunityRepository
     }
 
     public async Task<PipelineBoardResponse> GetPipelineAsync(
-        int orgId, int appId, string? search, CancellationToken cancellationToken = default)
+        int orgId, int appId, string? search, int? ownerEmployeeId = null, DateOnly? fromDate = null, DateOnly? toDate = null, CancellationToken cancellationToken = default)
     {
         _ = cancellationToken;
         try
         {
-            var json = await CallAsync("pipeline", orgId, appId, search: search);
+            var json = await CallAsync(
+                "pipeline",
+                orgId,
+                appId,
+                search: search,
+                ownerEmployeeId: ownerEmployeeId,
+                expectedCloseDate: fromDate,
+                actualCloseDate: toDate);
             if (string.IsNullOrWhiteSpace(json) || json == "null")
                 return new PipelineBoardResponse();
             return JsonSerializer.Deserialize<PipelineBoardResponse>(json, PostgresJsonOptions.Options)
