@@ -137,11 +137,11 @@ public sealed class OpportunityService : IOpportunityService
     }
 
     public async Task<PipelineBoardResponse> GetPipelineAsync(
-        int orgId, string? search, CancellationToken cancellationToken = default)
+        int orgId, string? search, int? ownerEmployeeId = null, DateOnly? fromDate = null, DateOnly? toDate = null, CancellationToken cancellationToken = default)
     {
         ValidateOrg(orgId);
         var appId = GetAppId();
-        return await _opportunityRepository.GetPipelineAsync(orgId, appId, search, cancellationToken);
+        return await _opportunityRepository.GetPipelineAsync(orgId, appId, search, ownerEmployeeId, fromDate, toDate, cancellationToken);
     }
 
     public async Task<OpportunityDetailDto> MoveStageAsync(

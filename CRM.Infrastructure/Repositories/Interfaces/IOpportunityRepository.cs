@@ -24,7 +24,7 @@ public interface IOpportunityRepository
         int orgId, int appId, CancellationToken cancellationToken = default);
 
     Task<PipelineBoardResponse> GetPipelineAsync(
-        int orgId, int appId, string? search, CancellationToken cancellationToken = default);
+        int orgId, int appId, string? search, int? ownerEmployeeId = null, DateOnly? fromDate = null, DateOnly? toDate = null, CancellationToken cancellationToken = default);
 
     Task<OpportunityDetailDto> MoveStageAsync(
         int orgId, int appId, long opportunityId, int stageId, long updatedBy, CancellationToken cancellationToken = default);

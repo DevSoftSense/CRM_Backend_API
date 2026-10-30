@@ -104,6 +104,9 @@ public sealed class OpportunityController : ControllerBase
     [HttpGet("pipeline", Order = 0)]
     public async Task<IActionResult> GetPipelineAsync(
         [FromQuery] string? search,
+        [FromQuery] int? ownerEmployeeId,
+        [FromQuery] DateOnly? fromDate,
+        [FromQuery] DateOnly? toDate,
         CancellationToken cancellationToken = default)
     {
         if (!TryGetAuthContext(out _, out var orgId))
@@ -111,7 +114,7 @@ public sealed class OpportunityController : ControllerBase
 
         try
         {
-            return Ok(await _opportunityService.GetPipelineAsync(orgId, search, cancellationToken));
+            return Ok(await _opportunityService.GetPipelineAsync(orgId, search, ownerEmployeeId, fromDate, toDate, cancellationToken));
         }
         catch (ArgumentException ex) { return BadRequest(new { message = ex.Message }); }
         catch (PostgresException ex)
