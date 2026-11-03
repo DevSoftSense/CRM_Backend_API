@@ -8,6 +8,9 @@ public interface ITaskRepository
     Task<IReadOnlyList<TaskListItemDto>> GetTasksAsync(
         int orgId, int appId, GetTasksRequest request, CancellationToken cancellationToken = default);
 
+    Task<TaskStatsDto> GetStatsAsync(
+        int orgId, int appId, CancellationToken cancellationToken = default);
+
     Task<TaskDetailDto?> GetTaskByIdAsync(
         int orgId, int appId, int taskId, CancellationToken cancellationToken = default);
 

@@ -13,4 +13,5 @@ public interface IActivityService
     Task<ActivityDetailDto> CompleteActivityAsync(int orgId, int activityId, DateTime? endTime, CancellationToken cancellationToken = default);
     Task<DeactivateActivityResponse> DeactivateActivityAsync(int orgId, int activityId, CancellationToken cancellationToken = default);
     Task<ActivityLookupsResponse> GetLookupsAsync(int orgId, CancellationToken cancellationToken = default);
+    Task<string> GetStatsAsync(int orgId, CancellationToken cancellationToken = default);
 }

@@ -172,6 +172,10 @@ public sealed class ActivityRepository : IActivityRepository
         }
     }
 
+    public Task<string> GetStatsRawAsync(
+        int orgId, int appId, CancellationToken cancellationToken = default) =>
+        CallAsync("stats", orgId, appId);
+
     private async Task<IReadOnlyList<ActivityListItemDto>> QueryListAsync(
         string action, int orgId, int appId, GetActivitiesRequest request, CancellationToken cancellationToken)
     {

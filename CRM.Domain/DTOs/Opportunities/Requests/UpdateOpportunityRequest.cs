@@ -22,4 +22,20 @@ public sealed class UpdateOpportunityRequest
     public int? OwnerEmployeeId { get; set; }
     public int? BranchId { get; set; }
     public int? FiscalYearId { get; set; }
+
+    // Enhanced Fields (from Create Opportunity 360° View)
+    public string? Description { get; set; }
+    public decimal? Budget { get; set; }
+    public string? Competitor { get; set; }
+    public decimal? ExpectedRevenue { get; set; }
+    public string? DecisionMaker { get; set; }
+    public string? ReasonNeed { get; set; }
+    public string? ProposalSolution { get; set; }
+    public string? Notes { get; set; }
+    public string? ProductsJson { get; set; }
+    public DateOnly? FollowupDate { get; set; }
+    public string? ReminderTime { get; set; }
+    public string? ReminderNotes { get; set; }
+    public string? Territory { get; set; }
+    public int? PipelineId { get; set; }
 }

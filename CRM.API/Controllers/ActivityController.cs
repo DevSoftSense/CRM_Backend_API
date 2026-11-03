@@ -89,6 +89,30 @@ public sealed class ActivityController : ControllerBase
         }
     }
 
+    [HttpGet("stats", Order = 0)]
+    public async Task<IActionResult> GetStatsAsync(CancellationToken cancellationToken = default)
+    {
+        if (!TryGetAuthContext(out _, out var orgId))
+            return Unauthorized(new { message = "Invalid or missing authentication token." });
+
+        try
+        {
+            var rawJson = await _activityService.GetStatsAsync(orgId, cancellationToken);
+            return Content(rawJson, "application/json");
+        }
+        catch (ArgumentException ex) { return BadRequest(new { message = ex.Message }); }
+        catch (PostgresException ex)
+        {
+            _logger.LogWarning(ex, "Activity stats failed.");
+            return BadRequest(new { message = ex.MessageText });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "GET api/activities/stats failed");
+            return StatusCode(500, new { message = "Failed to load activity statistics." });
+        }
+    }
+
     [HttpGet("calendar", Order = 0)]
     public async Task<IActionResult> GetCalendarAsync(
         [FromQuery] DateTime? startFrom,

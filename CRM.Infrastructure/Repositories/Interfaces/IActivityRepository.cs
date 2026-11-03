@@ -28,4 +28,7 @@ public interface IActivityRepository
 
     Task<ActivityLookupsResponse> GetLookupsAsync(
         int orgId, int appId, CancellationToken cancellationToken = default);
+
+    Task<string> GetStatsRawAsync(
+        int orgId, int appId, CancellationToken cancellationToken = default);
 }

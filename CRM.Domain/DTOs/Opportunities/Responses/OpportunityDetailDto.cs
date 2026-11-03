@@ -51,6 +51,21 @@ public sealed class OpportunityDetailDto
     public int OrgId { get; set; }
     public int AppId { get; set; }
 
+    // Enhanced Fields (from Create Opportunity 360° View)
+    public string? Description { get; set; }
+    public decimal? Budget { get; set; }
+    public string? Competitor { get; set; }
+    public decimal? ExpectedRevenue { get; set; }
+    public string? DecisionMaker { get; set; }
+    public string? ReasonNeed { get; set; }
+    public string? ProposalSolution { get; set; }
+    public string? Notes { get; set; }
+    public object? Products { get; set; }
+    public DateOnly? FollowupDate { get; set; }
+    public string? ReminderTime { get; set; }
+    public string? ReminderNotes { get; set; }
+    public int? PipelineId { get; set; }
+
     // 360° Profile Sub-collections
     public IReadOnlyList<OpportunityContactPersonDto> KeyContacts { get; set; } = [];
     public IReadOnlyList<OpportunityActivityDto> RecentActivities { get; set; } = [];

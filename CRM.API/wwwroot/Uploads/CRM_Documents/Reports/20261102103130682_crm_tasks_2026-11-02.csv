@@ -1,0 +1,5 @@
+Task Code,Title,Type,Priority,Status,Due Date,Owner,Company,Contact
+"TSK-CRM-001","Follow-up call with Neha Shah","Call","High","To Do","2026-11-02","Amit Kumar","ABC Ltd.","Neha Shah"
+"TSK-CRM-002","Product Demo","Meeting","High","In Progress","2026-11-02","Neha Gupta","XYZ Pvt. Ltd.","Rajesh Mehta"
+"TSK-CRM-003","Send Quotation","Email","Medium","To Do","2026-11-03","Vikram Singh","Green Field Pvt. Ltd.","Vikram Joshi"
+"TSK-CRM-004","Prepare Proposal","Task","High","In Progress","2026-11-07","Amit Kumar","ABC Ltd.","Neha Shah"

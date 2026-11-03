@@ -71,7 +71,9 @@ public sealed class ContactRepository : IContactRepository
         {
             var json = await CallAsync("get_by_id", orgId, appId, contactPersonId: contactPersonId);
             if (string.IsNullOrWhiteSpace(json) || json == "null") return null;
-            return JsonSerializer.Deserialize<ContactDetailDto>(json, PostgresJsonOptions.Options);
+            var dto = JsonSerializer.Deserialize<ContactDetailDto>(json, PostgresJsonOptions.Options);
+            SyncFlattenedProperties(dto, orgId, appId);
+            return dto;
         }
         catch (PostgresException ex)
         {
@@ -99,8 +101,10 @@ public sealed class ContactRepository : IContactRepository
                 fiscalYearId: request.FiscalYearId);
             if (string.IsNullOrWhiteSpace(json) || json == "null")
                 throw new InvalidOperationException("Create contact returned empty response.");
-            return JsonSerializer.Deserialize<ContactDetailDto>(json, PostgresJsonOptions.Options)
+            var dto = JsonSerializer.Deserialize<ContactDetailDto>(json, PostgresJsonOptions.Options)
                    ?? throw new InvalidOperationException("Create contact response could not be parsed.");
+            SyncFlattenedProperties(dto, orgId, appId);
+            return dto;
         }
         catch (PostgresException ex)
         {
@@ -129,8 +133,10 @@ public sealed class ContactRepository : IContactRepository
                 fiscalYearId: request.FiscalYearId);
             if (string.IsNullOrWhiteSpace(json) || json == "null")
                 throw new InvalidOperationException("Update contact returned empty response.");
-            return JsonSerializer.Deserialize<ContactDetailDto>(json, PostgresJsonOptions.Options)
+            var dto = JsonSerializer.Deserialize<ContactDetailDto>(json, PostgresJsonOptions.Options)
                    ?? throw new InvalidOperationException("Update contact response could not be parsed.");
+            SyncFlattenedProperties(dto, orgId, appId);
+            return dto;
         }
         catch (PostgresException ex)
         {
@@ -155,6 +161,32 @@ public sealed class ContactRepository : IContactRepository
         {
             _logger.LogError(ex, "PostgreSQL error in {Fn} deactivate", Fn);
             throw;
+        }
+    }
+
+    private static void SyncFlattenedProperties(ContactDetailDto? dto, int orgId, int appId)
+    {
+        if (dto is null) return;
+        if (dto.Contact is not null)
+        {
+            dto.ContactPersonId = dto.Contact.ContactPersonId;
+            dto.Salutation = dto.Contact.Salutation;
+            dto.FirstName = dto.Contact.FirstName;
+            dto.LastName = dto.Contact.LastName;
+            dto.DisplayName = dto.Contact.DisplayName;
+            dto.Email = dto.Contact.Email;
+            dto.Mobile = dto.Contact.Mobile;
+            dto.WorkPhone = dto.Contact.WorkPhone;
+            dto.IsPrimary = dto.Contact.IsPrimary;
+            dto.CreatedOn = dto.Contact.CreatedOn;
+            dto.OrgId = orgId;
+            dto.AppId = appId;
+        }
+        if (dto.Organization is not null)
+        {
+            dto.AccountId = dto.Organization.AccountId;
+            dto.AccountName = dto.Organization.AccountName;
+            dto.AccountCompany = dto.Organization.CompanyName;
         }
     }
 

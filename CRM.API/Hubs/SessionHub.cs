@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using CRM.API.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
@@ -39,12 +40,6 @@ public sealed class SessionHub : Hub
 
     private static bool TryGetOrgUser(ClaimsPrincipal? user, out int orgId, out int userId)
     {
-        orgId = 0;
-        userId = 0;
-        if (user?.Identity?.IsAuthenticated != true) return false;
-        var orgRaw = user.FindFirst("org_id")?.Value;
-        var userRaw = user.FindFirst("user_id")?.Value;
-        return int.TryParse(orgRaw, out orgId) && int.TryParse(userRaw, out userId)
-               && orgId > 0 && userId > 0;
+        return AuthContextHelper.TryGetAuthContext(user, out userId, out orgId);
     }
 }

@@ -11,6 +11,7 @@ namespace CRM.Infrastructure.Repositories.Classes;
 
 /// <summary>
 /// Calls public.fn_crm_opportunity(p_action, p_org_id, p_app_id, …) only — no inline table SQL.
+/// 29 Positional Parameters matching database stored function on public.tab_opportunity.
 /// </summary>
 public sealed class OpportunityRepository : IOpportunityRepository
 {
@@ -102,6 +103,10 @@ public sealed class OpportunityRepository : IOpportunityRepository
         _ = cancellationToken;
         try
         {
+            var effectiveNotes = !string.IsNullOrWhiteSpace(request.Notes)
+                ? request.Notes
+                : (!string.IsNullOrWhiteSpace(request.Description) ? request.Description : request.ClosedReason);
+
             var json = await CallAsync(
                 "create",
                 orgId,
@@ -123,7 +128,7 @@ public sealed class OpportunityRepository : IOpportunityRepository
                 forecastCategoryId: request.ForecastCategoryId,
                 priorityId: request.PriorityId,
                 nextStep: request.NextStep,
-                closedReason: request.ClosedReason,
+                closedReason: effectiveNotes,
                 ownerEmployeeId: request.OwnerEmployeeId,
                 branchId: request.BranchId,
                 fiscalYearId: request.FiscalYearId);
@@ -152,6 +157,10 @@ public sealed class OpportunityRepository : IOpportunityRepository
         _ = cancellationToken;
         try
         {
+            var effectiveNotes = !string.IsNullOrWhiteSpace(request.Notes)
+                ? request.Notes
+                : (!string.IsNullOrWhiteSpace(request.Description) ? request.Description : request.ClosedReason);
+
             var json = await CallAsync(
                 "update",
                 orgId,
@@ -174,7 +183,7 @@ public sealed class OpportunityRepository : IOpportunityRepository
                 forecastCategoryId: request.ForecastCategoryId,
                 priorityId: request.PriorityId,
                 nextStep: request.NextStep,
-                closedReason: request.ClosedReason,
+                closedReason: effectiveNotes,
                 ownerEmployeeId: request.OwnerEmployeeId,
                 branchId: request.BranchId,
                 fiscalYearId: request.FiscalYearId);
@@ -202,7 +211,13 @@ public sealed class OpportunityRepository : IOpportunityRepository
         _ = cancellationToken;
         try
         {
-            var json = await CallAsync("deactivate", orgId, appId, opportunityId: opportunityId, updatedBy: updatedBy);
+            var json = await CallAsync(
+                "deactivate",
+                orgId,
+                appId,
+                opportunityId: opportunityId,
+                updatedBy: updatedBy);
+
             if (string.IsNullOrWhiteSpace(json) || json == "null")
                 throw new InvalidOperationException("Deactivate opportunity returned empty response.");
 

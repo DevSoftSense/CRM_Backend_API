@@ -36,10 +36,7 @@ public sealed class AuthSessionController : ControllerBase
         [FromBody] LogoutRequest? body,
         CancellationToken cancellationToken)
     {
-        var orgRaw = User.FindFirst("org_id")?.Value;
-        var userRaw = User.FindFirst("user_id")?.Value;
-        if (!int.TryParse(orgRaw, out var orgId) || !int.TryParse(userRaw, out var userId)
-            || orgId <= 0 || userId <= 0)
+        if (!AuthContextHelper.TryGetAuthContext(User, out var userId, out var orgId))
         {
             return Ok(new { ok = true, revoked = false });
         }
@@ -63,10 +60,7 @@ public sealed class AuthSessionController : ControllerBase
     [HttpPost("session-renew")]
     public IActionResult SessionRenew()
     {
-        var orgRaw = User.FindFirst("org_id")?.Value;
-        var userRaw = User.FindFirst("user_id")?.Value;
-        if (!int.TryParse(orgRaw, out var orgId) || !int.TryParse(userRaw, out var userId)
-            || orgId <= 0 || userId <= 0)
+        if (!AuthContextHelper.TryGetAuthContext(User, out var userId, out var orgId))
         {
             return Ok(new { ok = true, renewed = false });
         }
