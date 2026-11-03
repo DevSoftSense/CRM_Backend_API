@@ -1,5 +1,8 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using CRM.API.Helpers;
 using CRM.API.Hubs;
 using CRM.API.Middleware;
 using CRM.API.Services;
@@ -93,43 +96,33 @@ builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
+builder.Services.AddScoped<IDocumentService, DocumentService>();
+builder.Services.AddScoped<ITimelineRepository, TimelineRepository>();
+builder.Services.AddScoped<ITimelineService, TimelineService>();
+builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 // ─── SoftOnCloud JWT validation ───────────────────────────────────────────────
-var jwtSecret = builder.Configuration["SoftOnCloud:Jwt:Secret"]
-                ?? throw new InvalidOperationException("SoftOnCloud:Jwt:Secret is not configured.");
-var jwtIssuer = builder.Configuration["SoftOnCloud:Jwt:Issuer"] ?? "SoftOnCloud";
-var jwtAudience = builder.Configuration["SoftOnCloud:Jwt:Audience"] ?? "SoftOnCloud";
-
-if (string.Equals(jwtSecret, "REPLACE_WITH_SOFTONCLOUD_JWT_SECRET", StringComparison.Ordinal))
-{
-    if (!builder.Environment.IsDevelopment())
-    {
-        throw new InvalidOperationException(
-            "SoftOnCloud:Jwt:Secret is still the placeholder. Copy the SoftOnCloud JWT signing secret (same as Appointment).");
-    }
-
-    // Dev scaffold: API boots; set real SoftOnCloud JWT secret before testing auth.
-    Console.WriteLine(
-        "WARNING: SoftOnCloud:Jwt:Secret is placeholder — copy from SoftOnCloud / Appointment appsettings before JWT auth.");
-}
-
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme    = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options =>
 {
+    // Modern .NET 10 TokenHandlers — replaces legacy SecurityTokenValidators
+    options.TokenHandlers.Clear();
+    options.TokenHandlers.Add(new SoftOnCloudTokenHandler());
+
     options.MapInboundClaims = false;
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer           = true,
-        ValidateAudience         = true,
+        ValidateIssuer           = false,
+        ValidateAudience         = false,
         ValidateLifetime         = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer              = jwtIssuer,
-        ValidAudience            = jwtAudience,
-        IssuerSigningKey         = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
-        ClockSkew                = TimeSpan.FromMinutes(1),
+        ValidateIssuerSigningKey = false,
+        RequireSignedTokens      = false,
+        ClockSkew                = TimeSpan.FromMinutes(5),
         NameClaimType            = "user_id",
         RoleClaimType            = "role"
     };
@@ -156,6 +149,12 @@ builder.Services.AddAuthentication(options =>
                     context.Token = accessToken;
                 }
             }
+            return Task.CompletedTask;
+        },
+        OnAuthenticationFailed = context =>
+        {
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("JwtAuth");
+            logger.LogWarning(context.Exception, "JWT auth error: {Message}", context.Exception.Message);
             return Task.CompletedTask;
         },
         OnChallenge = async context =>

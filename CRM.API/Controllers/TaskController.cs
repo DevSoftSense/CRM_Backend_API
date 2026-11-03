@@ -29,6 +29,7 @@ public sealed class TaskController : ControllerBase
         [FromQuery] int? employeeId,
         [FromQuery] DateOnly? dueFrom,
         [FromQuery] DateOnly? dueTo,
+        [FromQuery] string? tab,
         [FromQuery] int limit = 50,
         [FromQuery] int offset = 0,
         CancellationToken cancellationToken = default)
@@ -49,6 +50,7 @@ public sealed class TaskController : ControllerBase
                     EmployeeId = employeeId,
                     DueFrom = dueFrom,
                     DueTo = dueTo,
+                    Tab = tab,
                     Limit = limit,
                     Offset = offset
                 },
@@ -64,6 +66,29 @@ public sealed class TaskController : ControllerBase
         {
             _logger.LogError(ex, "GET api/tasks failed");
             return StatusCode(500, new { message = "Failed to load tasks." });
+        }
+    }
+
+    [HttpGet("stats", Order = 0)]
+    public async Task<IActionResult> GetStatsAsync(CancellationToken cancellationToken = default)
+    {
+        if (!TryGetAuthContext(out _, out var orgId))
+            return Unauthorized(new { message = "Invalid or missing authentication token." });
+
+        try
+        {
+            return Ok(await _taskService.GetStatsAsync(orgId, cancellationToken));
+        }
+        catch (ArgumentException ex) { return BadRequest(new { message = ex.Message }); }
+        catch (PostgresException ex)
+        {
+            _logger.LogWarning(ex, "Task stats failed.");
+            return BadRequest(new { message = ex.MessageText });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "GET api/tasks/stats failed");
+            return StatusCode(500, new { message = "Failed to load task stats." });
         }
     }
 

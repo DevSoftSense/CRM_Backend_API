@@ -6,6 +6,10 @@ public sealed class ActivityListItemDto
     public string? Subject { get; set; }
     public string ActType { get; set; } = string.Empty;
     public string? ActTypeName { get; set; }
+    public string? ActSubtype { get; set; }
+    public string? WithName { get; set; }
+    public string? RelatedTo { get; set; }
+    public string? OwnerAvatar { get; set; }
     public string ActivityStatus { get; set; } = string.Empty;
     public string? ActivityStatusName { get; set; }
     public DateTime StartTime { get; set; }

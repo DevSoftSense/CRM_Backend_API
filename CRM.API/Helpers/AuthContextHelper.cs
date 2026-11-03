@@ -51,7 +51,10 @@ public static class AuthContextHelper
     /// <summary>JWT org_id claim → used as p_org_id for all crm.fn_* calls.</summary>
     public static int RequireOrgId(ClaimsPrincipal user)
     {
-        var raw = user.FindFirst("org_id")?.Value;
+        var raw = user.FindFirst("org_id")?.Value
+               ?? user.FindFirst("orgId")?.Value
+               ?? user.FindFirst("organisation_id")?.Value
+               ?? user.FindFirst("organization_id")?.Value;
         if (!int.TryParse(raw, out var orgId) || orgId <= 0)
             throw new UnauthorizedAccessException("Missing or invalid org_id in SoftOnCloud JWT.");
         return orgId;
@@ -60,9 +63,34 @@ public static class AuthContextHelper
     /// <summary>JWT user_id claim.</summary>
     public static int RequireUserId(ClaimsPrincipal user)
     {
-        var raw = user.FindFirst("user_id")?.Value;
+        var raw = user.FindFirst("user_id")?.Value
+               ?? user.FindFirst("userId")?.Value
+               ?? user.FindFirst("sub")?.Value
+               ?? user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!int.TryParse(raw, out var userId) || userId <= 0)
             throw new UnauthorizedAccessException("Missing or invalid user_id in SoftOnCloud JWT.");
         return userId;
+    }
+
+    public static bool TryGetAuthContext(ClaimsPrincipal? user, out int userId, out int orgId)
+    {
+        userId = 0;
+        orgId = 0;
+        if (user == null) return false;
+
+        var userIdRaw = user.FindFirst("user_id")?.Value
+                     ?? user.FindFirst("userId")?.Value
+                     ?? user.FindFirst("sub")?.Value
+                     ?? user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        var orgIdRaw = user.FindFirst("org_id")?.Value
+                    ?? user.FindFirst("orgId")?.Value
+                    ?? user.FindFirst("organisation_id")?.Value
+                    ?? user.FindFirst("organization_id")?.Value;
+
+        return int.TryParse(userIdRaw, out userId)
+               && userId > 0
+               && int.TryParse(orgIdRaw, out orgId)
+               && orgId > 0;
     }
 }

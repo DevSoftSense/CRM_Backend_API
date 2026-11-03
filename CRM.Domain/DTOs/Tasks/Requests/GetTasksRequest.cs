@@ -9,6 +9,7 @@ public sealed class GetTasksRequest
     public int? EmployeeId { get; set; }
     public DateOnly? DueFrom { get; set; }
     public DateOnly? DueTo { get; set; }
+    public string? Tab { get; set; }
     public int Limit { get; set; } = 50;
     public int Offset { get; set; }
 }

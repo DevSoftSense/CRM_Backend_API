@@ -58,9 +58,7 @@ public sealed class SoftOnCloudSessionMiddleware
     private static bool IsRevoked(HttpContext context, SessionRevocationStore store)
     {
         var user = context.User;
-        var orgRaw = user.FindFirst("org_id")?.Value;
-        var userRaw = user.FindFirst("user_id")?.Value;
-        if (!int.TryParse(orgRaw, out var orgId) || !int.TryParse(userRaw, out var userId))
+        if (!AuthContextHelper.TryGetAuthContext(user, out var userId, out var orgId))
             return false;
         return store.IsTokenRevoked(
             orgId,

@@ -6,6 +6,8 @@ public sealed class CreateTaskRequest
     public string? TaskType { get; set; }
     public string? Priority { get; set; }
     public string? Status { get; set; }
+    public string? Company { get; set; }
+    public string? ContactPerson { get; set; }
     public DateOnly? DueDate { get; set; }
     public DateOnly? StartDate { get; set; }
     public int? EmployeeId { get; set; }

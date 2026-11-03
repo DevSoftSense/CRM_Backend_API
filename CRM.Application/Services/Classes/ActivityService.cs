@@ -105,6 +105,12 @@ public sealed class ActivityService : IActivityService
         return await _activityRepository.GetLookupsAsync(orgId, GetAppId(), cancellationToken);
     }
 
+    public async Task<string> GetStatsAsync(int orgId, CancellationToken cancellationToken = default)
+    {
+        ValidateOrg(orgId);
+        return await _activityRepository.GetStatsRawAsync(orgId, GetAppId(), cancellationToken);
+    }
+
     private int GetAppId() => SoftOnCloudProductId.Require(_configuration);
 
     private static void ValidateOrg(int orgId)

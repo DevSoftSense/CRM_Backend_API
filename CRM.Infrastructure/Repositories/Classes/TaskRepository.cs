@@ -39,13 +39,31 @@ public sealed class TaskRepository : ITaskRepository
                 offset: request.Offset,
                 querytype: request.TaskType,
                 startDate: request.DueFrom,
-                dueDate: request.DueTo);
+                dueDate: request.DueTo,
+                tab: request.Tab);
             if (string.IsNullOrWhiteSpace(json) || json == "null") return [];
             return JsonSerializer.Deserialize<List<TaskListItemDto>>(json, PostgresJsonOptions.Options) ?? [];
         }
         catch (PostgresException ex)
         {
             _logger.LogError(ex, "PostgreSQL error in {Fn} list", Fn);
+            throw;
+        }
+    }
+
+    public async Task<TaskStatsDto> GetStatsAsync(
+        int orgId, int appId, CancellationToken cancellationToken = default)
+    {
+        _ = cancellationToken;
+        try
+        {
+            var json = await CallAsync("stats", orgId, appId);
+            if (string.IsNullOrWhiteSpace(json) || json == "null") return new TaskStatsDto();
+            return JsonSerializer.Deserialize<TaskStatsDto>(json, PostgresJsonOptions.Options) ?? new TaskStatsDto();
+        }
+        catch (PostgresException ex)
+        {
+            _logger.LogError(ex, "PostgreSQL error in {Fn} stats", Fn);
             throw;
         }
     }
@@ -82,7 +100,9 @@ public sealed class TaskRepository : ITaskRepository
                 dueDate: request.DueDate,
                 startDate: request.StartDate,
                 querytype: request.TaskType,
-                notes: request.Notes);
+                notes: request.Notes,
+                company: request.Company,
+                contactPerson: request.ContactPerson);
             if (string.IsNullOrWhiteSpace(json) || json == "null")
                 throw new InvalidOperationException("Create task returned empty response.");
             return JsonSerializer.Deserialize<TaskDetailDto>(json, PostgresJsonOptions.Options)
@@ -111,7 +131,9 @@ public sealed class TaskRepository : ITaskRepository
                 dueDate: request.DueDate,
                 startDate: request.StartDate,
                 querytype: request.TaskType,
-                notes: request.Notes);
+                notes: request.Notes,
+                company: request.Company,
+                contactPerson: request.ContactPerson);
             if (string.IsNullOrWhiteSpace(json) || json == "null")
                 throw new InvalidOperationException("Update task returned empty response.");
             return JsonSerializer.Deserialize<TaskDetailDto>(json, PostgresJsonOptions.Options)
@@ -196,7 +218,10 @@ public sealed class TaskRepository : ITaskRepository
         DateOnly? dueDate = null,
         DateOnly? startDate = null,
         string? querytype = null,
-        string? notes = null) =>
+        string? notes = null,
+        string? company = null,
+        string? contactPerson = null,
+        string? tab = null) =>
         _db.ExecuteJsonFunctionAsync(
             Fn,
             Varchar(action),
@@ -213,7 +238,10 @@ public sealed class TaskRepository : ITaskRepository
             Date(dueDate),
             Date(startDate),
             Varchar(querytype),
-            Text(notes));
+            Text(notes),
+            Varchar(company),
+            Varchar(contactPerson),
+            Varchar(tab));
 
     private static NpgsqlParameter Int(int value) =>
         new() { Value = value, NpgsqlDbType = NpgsqlDbType.Integer };

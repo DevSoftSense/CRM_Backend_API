@@ -34,6 +34,13 @@ public sealed class TaskService : ITaskService
         };
     }
 
+    public async Task<TaskStatsDto> GetStatsAsync(
+        int orgId, CancellationToken cancellationToken = default)
+    {
+        ValidateOrg(orgId);
+        return await _taskRepository.GetStatsAsync(orgId, GetAppId(), cancellationToken);
+    }
+
     public async Task<TaskDetailDto?> GetTaskByIdAsync(
         int orgId, int taskId, CancellationToken cancellationToken = default)
     {
@@ -51,7 +58,7 @@ public sealed class TaskService : ITaskService
             throw new ArgumentException("Title is required.");
         if (string.IsNullOrWhiteSpace(request.Status)) request.Status = "TO_DO";
         if (string.IsNullOrWhiteSpace(request.Priority)) request.Priority = "MEDIUM";
-        if (string.IsNullOrWhiteSpace(request.TaskType)) request.TaskType = "FOLLOW_UP";
+        if (string.IsNullOrWhiteSpace(request.TaskType)) request.TaskType = "TASK";
 
         return await _taskRepository.CreateTaskAsync(orgId, GetAppId(), request, cancellationToken);
     }
