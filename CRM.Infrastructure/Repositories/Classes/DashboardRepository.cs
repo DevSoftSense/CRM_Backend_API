@@ -41,8 +41,40 @@ public sealed class DashboardRepository : IDashboardRepository
             if (string.IsNullOrWhiteSpace(json) || json == "null" || json == "{}")
                 return new CrmDashboardResponseDto();
 
-            return JsonSerializer.Deserialize<CrmDashboardResponseDto>(json, PostgresJsonOptions.Options)
+            var result = JsonSerializer.Deserialize<CrmDashboardResponseDto>(json, PostgresJsonOptions.Options)
                    ?? new CrmDashboardResponseDto();
+
+            if (result.TodaysSchedule != null)
+            {
+                foreach (var s in result.TodaysSchedule)
+                {
+                    if (string.IsNullOrWhiteSpace(s.TimeLabel) && s.StartTime.HasValue)
+                        s.TimeLabel = s.StartTime.Value.ToString("hh:mm tt");
+
+                    if (string.IsNullOrWhiteSpace(s.ActivityType))
+                        s.ActivityType = !string.IsNullOrWhiteSpace(s.Type) ? s.Type : "Meeting";
+
+                    if (string.IsNullOrWhiteSpace(s.CustomerName))
+                    {
+                        if (!string.IsNullOrWhiteSpace(s.Notes))
+                        {
+                            var m = System.Text.RegularExpressions.Regex.Match(s.Notes, @"Related:\s*([^\|\n\]]+)");
+                            if (m.Success)
+                                s.CustomerName = m.Groups[1].Value.Trim();
+                            else
+                            {
+                                var mw = System.Text.RegularExpressions.Regex.Match(s.Notes, @"With:\s*([^\|\n\]]+)");
+                                if (mw.Success)
+                                    s.CustomerName = mw.Groups[1].Value.Trim();
+                            }
+                        }
+                        if (string.IsNullOrWhiteSpace(s.CustomerName))
+                            s.CustomerName = !string.IsNullOrWhiteSpace(s.Subject) ? s.Subject : "Client";
+                    }
+                }
+            }
+
+            return result;
         }
         catch (PostgresException ex)
         {
