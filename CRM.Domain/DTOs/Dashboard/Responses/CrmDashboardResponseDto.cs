@@ -271,17 +271,35 @@ public sealed class DashboardScheduleItemDto
     [JsonPropertyName("time_label")]
     public string TimeLabel { get; set; } = string.Empty;
 
+    [JsonPropertyName("start_time")]
+    public DateTime? StartTime { get; set; }
+
+    [JsonPropertyName("end_time")]
+    public DateTime? EndTime { get; set; }
+
     [JsonPropertyName("customer_name")]
     public string CustomerName { get; set; } = string.Empty;
 
     [JsonPropertyName("activity_type")]
     public string ActivityType { get; set; } = string.Empty;
 
+    [JsonPropertyName("type")]
+    public string? Type { get; set; }
+
+    [JsonPropertyName("subject")]
+    public string? Subject { get; set; }
+
+    [JsonPropertyName("notes")]
+    public string? Notes { get; set; }
+
     [JsonPropertyName("status")]
     public string Status { get; set; } = string.Empty;
 
     [JsonPropertyName("employee_name")]
     public string EmployeeName { get; set; } = string.Empty;
+
+    [JsonPropertyName("owner_name")]
+    public string? OwnerName { get; set; }
 }
 
 public sealed class DashboardFollowupItemDto

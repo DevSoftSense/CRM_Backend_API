@@ -269,8 +269,18 @@ public sealed class OpportunityRepository : IOpportunityRepository
                 actualCloseDate: toDate);
             if (string.IsNullOrWhiteSpace(json) || json == "null")
                 return new PipelineBoardResponse();
-            return JsonSerializer.Deserialize<PipelineBoardResponse>(json, PostgresJsonOptions.Options)
+            var board = JsonSerializer.Deserialize<PipelineBoardResponse>(json, PostgresJsonOptions.Options)
                    ?? new PipelineBoardResponse();
+            if (board.Summary == null && (board.RootTotalOpportunities.HasValue || board.RootTotalPipelineValue.HasValue))
+            {
+                board.Summary = new CRM.Domain.DTOs.Opportunities.Responses.PipelineSummaryDto
+                {
+                    TotalOpportunities = board.RootTotalOpportunities ?? 0,
+                    TotalPipelineValue = board.RootTotalPipelineValue ?? 0,
+                    WeightedValue = board.RootWeightedPipelineValue ?? 0,
+                };
+            }
+            return board;
         }
         catch (PostgresException ex)
         {
