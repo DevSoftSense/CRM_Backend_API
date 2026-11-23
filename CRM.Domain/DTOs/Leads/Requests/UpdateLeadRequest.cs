@@ -19,6 +19,8 @@ public sealed class UpdateLeadRequest
     public string? Description { get; set; }
     public int? OwnerEmployeeId { get; set; }
     public long? CampaignId { get; set; }
+    public int? ConvertedAccountId { get; set; }
+    public int? ConvertedContactId { get; set; }
     public int? BranchId { get; set; }
     public int? FiscalYearId { get; set; }
 }

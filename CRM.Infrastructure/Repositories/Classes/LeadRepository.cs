@@ -122,6 +122,8 @@ public sealed class LeadRepository : ILeadRepository
                 description: request.Description,
                 ownerEmployeeId: request.OwnerEmployeeId,
                 campaignId: request.CampaignId,
+                convertedAccountId: request.ConvertedAccountId,
+                convertedContactId: request.ConvertedContactId,
                 branchId: request.BranchId,
                 fiscalYearId: request.FiscalYearId);
 
@@ -172,6 +174,8 @@ public sealed class LeadRepository : ILeadRepository
                 description: request.Description,
                 ownerEmployeeId: request.OwnerEmployeeId,
                 campaignId: request.CampaignId,
+                convertedAccountId: request.ConvertedAccountId,
+                convertedContactId: request.ConvertedContactId,
                 branchId: request.BranchId,
                 fiscalYearId: request.FiscalYearId);
 
@@ -259,6 +263,8 @@ public sealed class LeadRepository : ILeadRepository
         DateOnly? expectedCloseDate = null,
         string? description = null,
         long? campaignId = null,
+        int? convertedAccountId = null,
+        int? convertedContactId = null,
         int? branchId = null,
         int? fiscalYearId = null,
         long? createdBy = null,
@@ -289,6 +295,8 @@ public sealed class LeadRepository : ILeadRepository
             Date(expectedCloseDate),
             Text(description),
             NullableBigInt(campaignId),
+            NullableInt(convertedAccountId),
+            NullableInt(convertedContactId),
             NullableInt(branchId),
             NullableInt(fiscalYearId),
             NullableBigInt(createdBy),
