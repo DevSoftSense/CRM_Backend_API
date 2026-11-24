@@ -15,7 +15,36 @@ public sealed class SoftOnCloudTokenHandler : JsonWebTokenHandler
     {
         try
         {
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                return Task.FromResult(new TokenValidationResult
+                {
+                    IsValid = false,
+                    Exception = new SecurityTokenException("Empty bearer token.")
+                });
+            }
+
+            // Reject unsigned / malformed JWTs (must have 3 segments and non-empty signature, alg != none)
+            var segments = token.Split('.');
+            if (segments.Length != 3 || string.IsNullOrWhiteSpace(segments[2]))
+            {
+                return Task.FromResult(new TokenValidationResult
+                {
+                    IsValid = false,
+                    Exception = new SecurityTokenInvalidSignatureException("Unsigned or malformed JWT token.")
+                });
+            }
+
             var jwt = ReadJsonWebToken(token);
+            if (string.Equals(jwt.Alg, "none", StringComparison.OrdinalIgnoreCase))
+            {
+                return Task.FromResult(new TokenValidationResult
+                {
+                    IsValid = false,
+                    Exception = new SecurityTokenInvalidSignatureException("JWT algorithm 'none' is not permitted.")
+                });
+            }
+
             if (jwt.ValidTo != DateTime.MinValue && jwt.ValidTo < DateTime.UtcNow.AddMinutes(-5))
             {
                 return Task.FromResult(new TokenValidationResult

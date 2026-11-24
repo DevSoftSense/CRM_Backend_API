@@ -16,6 +16,9 @@ public sealed class DashboardOwnerLookupDto
     [JsonPropertyName("owner_id")]
     public int OwnerId { get; set; }
 
+    [JsonPropertyName("owner_code")]
+    public string? OwnerCode { get; set; }
+
     [JsonPropertyName("full_name")]
     public string FullName { get; set; } = string.Empty;
 

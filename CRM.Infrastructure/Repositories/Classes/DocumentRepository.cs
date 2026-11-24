@@ -88,7 +88,7 @@ public sealed class DocumentRepository : IDocumentRepository
         }
     }
 
-    public async Task<DocumentDetailDto> GetByIdAsync(
+    public async Task<DocumentDetailDto?> GetByIdAsync(
         int orgId, int appId, long documentId, CancellationToken cancellationToken = default)
     {
         _ = cancellationToken;
@@ -96,9 +96,8 @@ public sealed class DocumentRepository : IDocumentRepository
         {
             var json = await CallAsync("get_by_id", orgId, appId, documentId: documentId);
             if (string.IsNullOrWhiteSpace(json) || json == "null")
-                throw new InvalidOperationException($"Document {documentId} not found.");
-            return JsonSerializer.Deserialize<DocumentDetailDto>(json, PostgresJsonOptions.Options)
-                   ?? throw new InvalidOperationException("Document details could not be parsed.");
+                return null;
+            return JsonSerializer.Deserialize<DocumentDetailDto>(json, PostgresJsonOptions.Options);
         }
         catch (PostgresException ex)
         {

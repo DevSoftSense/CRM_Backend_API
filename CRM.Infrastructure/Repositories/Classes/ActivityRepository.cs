@@ -274,10 +274,18 @@ public sealed class ActivityRepository : IActivityRepository
             NpgsqlDbType = NpgsqlDbType.Text
         };
 
-    private static NpgsqlParameter Timestamp(DateTime? value) =>
-        new()
+    private static NpgsqlParameter Timestamp(DateTime? value)
+    {
+        if (!value.HasValue)
+            return new() { Value = DBNull.Value, NpgsqlDbType = NpgsqlDbType.Timestamp };
+
+        var local = value.Value.Kind == DateTimeKind.Utc
+            ? value.Value.ToLocalTime()
+            : value.Value;
+        return new()
         {
-            Value = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Unspecified) : DBNull.Value,
+            Value = DateTime.SpecifyKind(local, DateTimeKind.Unspecified),
             NpgsqlDbType = NpgsqlDbType.Timestamp
         };
+    }
 }

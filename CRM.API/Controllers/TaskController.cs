@@ -12,11 +12,13 @@ namespace CRM.API.Controllers;
 public sealed class TaskController : ControllerBase
 {
     private readonly ITaskService _taskService;
+    private readonly IOwnerService _ownerService;
     private readonly ILogger<TaskController> _logger;
 
-    public TaskController(ITaskService taskService, ILogger<TaskController> logger)
+    public TaskController(ITaskService taskService, IOwnerService ownerService, ILogger<TaskController> logger)
     {
         _taskService = taskService;
+        _ownerService = ownerService;
         _logger = logger;
     }
 
@@ -34,11 +36,20 @@ public sealed class TaskController : ControllerBase
         [FromQuery] int offset = 0,
         CancellationToken cancellationToken = default)
     {
-        if (!TryGetAuthContext(out _, out var orgId))
+        if (!TryGetAuthContext(out var userId, out var orgId))
             return Unauthorized(new { message = "Invalid or missing authentication token." });
 
         try
         {
+            var effectiveEmployeeId = employeeId;
+            var normalizedTab = tab?.Trim().ToLowerInvariant();
+            if (!effectiveEmployeeId.HasValue && normalizedTab is "my" or "assigned" or "created")
+            {
+                var email = User.FindFirst("email")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+                var resolved = await _ownerService.ResolveOwnerIdByUserAsync(orgId, userId, email, cancellationToken);
+                effectiveEmployeeId = resolved ?? -1;
+            }
+
             return Ok(await _taskService.GetTasksAsync(
                 orgId,
                 new GetTasksRequest
@@ -47,7 +58,7 @@ public sealed class TaskController : ControllerBase
                     Status = status,
                     Priority = priority,
                     TaskType = taskType,
-                    EmployeeId = employeeId,
+                    EmployeeId = effectiveEmployeeId,
                     DueFrom = dueFrom,
                     DueTo = dueTo,
                     Tab = tab,
@@ -144,12 +155,18 @@ public sealed class TaskController : ControllerBase
     public async Task<IActionResult> CreateAsync(
         [FromBody] CreateTaskRequest request, CancellationToken cancellationToken = default)
     {
-        if (!TryGetAuthContext(out _, out var orgId))
+        if (!TryGetAuthContext(out var userId, out var orgId))
             return Unauthorized(new { message = "Invalid or missing authentication token." });
 
         try
         {
-            var result = await _taskService.CreateTaskAsync(orgId, request, cancellationToken);
+            if (request is not null && (!request.EmployeeId.HasValue || request.EmployeeId.Value <= 0))
+            {
+                var email = User.FindFirst("email")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+                request.EmployeeId = await _ownerService.ResolveOwnerIdByUserAsync(orgId, userId, email, cancellationToken);
+            }
+
+            var result = await _taskService.CreateTaskAsync(orgId, request!, cancellationToken);
             return Created($"/api/tasks/{result.TaskId}", result);
         }
         catch (ArgumentException ex) { return BadRequest(new { message = ex.Message }); }

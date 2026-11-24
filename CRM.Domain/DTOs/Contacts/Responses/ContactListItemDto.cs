@@ -3,6 +3,7 @@ namespace CRM.Domain.DTOs.Contacts.Responses;
 public sealed class ContactListItemDto
 {
     public int ContactPersonId { get; set; }
+    public string? ContactCode { get; set; }
     public int? AccountId { get; set; }
     public string? AccountName { get; set; }
     public string? AccountCompany { get; set; }

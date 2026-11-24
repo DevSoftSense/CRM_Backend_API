@@ -14,7 +14,7 @@ public interface IDocumentRepository
     Task<DocumentLookupsResponse> GetLookupsAsync(
         int orgId, int appId, CancellationToken cancellationToken = default);
 
-    Task<DocumentDetailDto> GetByIdAsync(
+    Task<DocumentDetailDto?> GetByIdAsync(
         int orgId, int appId, long documentId, CancellationToken cancellationToken = default);
 
     Task<DocumentDetailDto> CreateDocumentAsync(

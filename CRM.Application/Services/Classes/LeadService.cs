@@ -99,6 +99,9 @@ public sealed class LeadService : ILeadService
         if (request.StatusId <= 0)
             throw new ArgumentException("Status is required.");
 
+        if (!string.IsNullOrWhiteSpace(request.CurrencyCode) && request.CurrencyCode.Trim().Length != 3)
+            request.CurrencyCode = "INR";
+
         var appId = GetAppId();
         return await _leadRepository.UpdateLeadAsync(orgId, appId, leadId, updatedBy, request, cancellationToken);
     }

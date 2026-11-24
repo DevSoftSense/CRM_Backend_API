@@ -112,7 +112,12 @@ public sealed class SalesDashboardRepository : ISalesDashboardRepository
         new()
         {
             Value = value.HasValue
-                ? (value.Value.Kind == DateTimeKind.Utc ? value.Value : value.Value.ToUniversalTime())
+                ? value.Value.Kind switch
+                {
+                    DateTimeKind.Utc => value.Value,
+                    DateTimeKind.Local => value.Value.ToUniversalTime(),
+                    _ => DateTime.SpecifyKind(value.Value, DateTimeKind.Utc)
+                }
                 : DBNull.Value,
             NpgsqlDbType = NpgsqlDbType.TimestampTz
         };

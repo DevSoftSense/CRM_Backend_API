@@ -138,7 +138,11 @@ public sealed class DashboardRepository : IDashboardRepository
     private static NpgsqlParameter NullableTimestampTz(DateTime? value) =>
         new()
         {
-            Value = value.HasValue ? (object)value.Value.ToUniversalTime() : DBNull.Value,
+            Value = value.HasValue
+                ? (object)(value.Value.Kind == DateTimeKind.Unspecified
+                    ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc)
+                    : value.Value.ToUniversalTime())
+                : DBNull.Value,
             NpgsqlDbType = NpgsqlDbType.TimestampTz
         };
 }
