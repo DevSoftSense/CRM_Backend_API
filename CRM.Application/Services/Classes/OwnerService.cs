@@ -36,7 +36,7 @@ public sealed class OwnerService : IOwnerService
     }
 
     public async Task<IReadOnlyList<OwnerDropdownItemDto>> GetDropdownAsync(
-        int orgId, string? search, int limit = 200, bool ensureSeed = true, int? userId = null,
+        int orgId, string? search, int limit = 200, bool ensureSeed = false, int? userId = null,
         CancellationToken cancellationToken = default)
     {
         ValidateOrg(orgId);
@@ -45,7 +45,8 @@ public sealed class OwnerService : IOwnerService
 
         var appId = GetAppId();
         var items = await _ownerRepository.GetDropdownAsync(orgId, appId, search, limit, cancellationToken);
-        if (ensureSeed && items.Count == 0)
+        // Never silently seed fake demo employees on GET or when a search query returns zero matches.
+        if (ensureSeed && string.IsNullOrWhiteSpace(search) && items.Count == 0)
             items = await _ownerRepository.EnsureSeedAsync(orgId, appId, userId, cancellationToken);
         return items;
     }
@@ -57,6 +58,15 @@ public sealed class OwnerService : IOwnerService
         if (ownerId <= 0) throw new ArgumentException("Owner id is required.");
         var appId = GetAppId();
         return await _ownerRepository.GetOwnerByIdAsync(orgId, appId, ownerId, cancellationToken);
+    }
+
+    public async Task<int?> ResolveOwnerIdByUserAsync(
+        int orgId, int userId, string? email = null, CancellationToken cancellationToken = default)
+    {
+        if (orgId <= 0 || userId <= 0) return null;
+        var appId = GetAppId();
+        var match = await _ownerRepository.GetOwnerByUserIdAsync(orgId, appId, userId, email, cancellationToken);
+        return match is { OwnerId: > 0 } ? match.OwnerId : null;
     }
 
     public async Task<OwnerDetailDto> CreateOwnerAsync(

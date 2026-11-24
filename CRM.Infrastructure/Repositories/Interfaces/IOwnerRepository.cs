@@ -17,6 +17,9 @@ public interface IOwnerRepository
     Task<OwnerDetailDto?> GetOwnerByIdAsync(
         int orgId, int appId, int ownerId, CancellationToken cancellationToken = default);
 
+    Task<OwnerDropdownItemDto?> GetOwnerByUserIdAsync(
+        int orgId, int appId, int userId, string? email = null, CancellationToken cancellationToken = default);
+
     Task<OwnerDetailDto> CreateOwnerAsync(
         int orgId, int appId, int createdBy, CreateOwnerRequest request, CancellationToken cancellationToken = default);
 

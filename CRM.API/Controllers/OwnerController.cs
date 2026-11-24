@@ -56,7 +56,7 @@ public sealed class OwnerController : ControllerBase
     public async Task<IActionResult> GetDropdownAsync(
         [FromQuery] string? search,
         [FromQuery] int limit = 200,
-        [FromQuery] bool ensureSeed = true,
+        [FromQuery] bool ensureSeed = false,
         CancellationToken cancellationToken = default)
     {
         if (!TryGetAuthContext(out var userId, out var orgId))

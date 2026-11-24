@@ -12,11 +12,16 @@ namespace CRM.API.Controllers;
 public sealed class DocumentController : ControllerBase
 {
     private readonly IDocumentService _documentService;
+    private readonly IOwnerService _ownerService;
     private readonly ILogger<DocumentController> _logger;
 
-    public DocumentController(IDocumentService documentService, ILogger<DocumentController> logger)
+    public DocumentController(
+        IDocumentService documentService,
+        IOwnerService ownerService,
+        ILogger<DocumentController> logger)
     {
         _documentService = documentService;
+        _ownerService = ownerService;
         _logger = logger;
     }
 
@@ -33,11 +38,19 @@ public sealed class DocumentController : ControllerBase
         [FromQuery] int offset = 0,
         CancellationToken cancellationToken = default)
     {
-        if (!TryGetAuthContext(out _, out var orgId))
+        if (!TryGetAuthContext(out var userId, out var orgId))
             return Unauthorized(new { message = "Invalid or missing authentication token." });
 
         try
         {
+            var effectiveOwnerId = ownerId;
+            if (!effectiveOwnerId.HasValue && string.Equals(tab?.Trim(), "my", StringComparison.OrdinalIgnoreCase))
+            {
+                var email = User.FindFirst("email")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+                var resolved = await _ownerService.ResolveOwnerIdByUserAsync(orgId, userId, email, cancellationToken);
+                effectiveOwnerId = resolved ?? -1;
+            }
+
             var res = await _documentService.GetDocumentsAsync(
                 orgId,
                 new GetDocumentsRequest
@@ -45,7 +58,7 @@ public sealed class DocumentController : ControllerBase
                     Search = search,
                     Folder = folder,
                     FileType = fileType,
-                    OwnerId = ownerId,
+                    OwnerId = effectiveOwnerId,
                     EntityType = entityType,
                     EntityId = entityId,
                     Tab = tab,
@@ -149,9 +162,11 @@ public sealed class DocumentController : ControllerBase
 
         try
         {
+            // Resolve logged-in user's real CRM employee_id when OwnerId is not explicitly selected.
             if (!request.OwnerId.HasValue || request.OwnerId.Value <= 0)
             {
-                request.OwnerId = userId;
+                var email = User.FindFirst("email")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+                request.OwnerId = await _ownerService.ResolveOwnerIdByUserAsync(orgId, userId, email, cancellationToken);
             }
 
             var result = await _documentService.UploadDocumentAsync(orgId, request, cancellationToken);

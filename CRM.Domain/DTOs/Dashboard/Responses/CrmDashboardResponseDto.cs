@@ -169,6 +169,12 @@ public sealed class KpiMetricAverageDealDto
     [JsonPropertyName("value")]
     public decimal Value { get; set; }
 
+    [JsonPropertyName("growth_pct")]
+    public decimal GrowthPct { get; set; }
+
+    [JsonPropertyName("is_positive")]
+    public bool IsPositive { get; set; }
+
     [JsonPropertyName("sparkline")]
     public List<decimal> Sparkline { get; set; } = new();
 }
@@ -232,8 +238,14 @@ public sealed class DashboardLeadSourceDto
     [JsonPropertyName("source_id")]
     public int SourceId { get; set; }
 
+    [JsonPropertyName("source_code")]
+    public string? SourceCode { get; set; }
+
     [JsonPropertyName("source_name")]
     public string SourceName { get; set; } = string.Empty;
+
+    [JsonPropertyName("sort_order")]
+    public int SortOrder { get; set; }
 
     [JsonPropertyName("count")]
     public long Count { get; set; }
@@ -289,6 +301,9 @@ public sealed class DashboardScheduleItemDto
     [JsonPropertyName("subject")]
     public string? Subject { get; set; }
 
+    [JsonPropertyName("reason")]
+    public string? Reason { get; set; }
+
     [JsonPropertyName("notes")]
     public string? Notes { get; set; }
 
@@ -333,6 +348,9 @@ public sealed class DashboardFollowupItemDto
 
     [JsonPropertyName("assignee")]
     public string Assignee { get; set; } = string.Empty;
+
+    [JsonPropertyName("owner_name")]
+    public string OwnerName { get; set; } = string.Empty;
 }
 
 public sealed class DashboardHotOpportunityDto
@@ -415,6 +433,9 @@ public sealed class DashboardTeamPerformanceDto
 
 public sealed class DashboardAiInsightDto
 {
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+
     [JsonPropertyName("insight_type")]
     public string InsightType { get; set; } = string.Empty;
 

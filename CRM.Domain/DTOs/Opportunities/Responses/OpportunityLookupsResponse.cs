@@ -7,4 +7,6 @@ public sealed class OpportunityLookupsResponse
     public IReadOnlyList<OpportunityLookupItemDto> ForecastCategory { get; set; } = [];
     public IReadOnlyList<OpportunityLookupItemDto> Priority { get; set; } = [];
     public IReadOnlyList<OpportunityLookupItemDto> LeadSource { get; set; } = [];
+    public IReadOnlyList<OpportunityLookupItemDto> Pipeline { get; set; } = [];
+    public IReadOnlyList<OpportunityLookupItemDto> Currency { get; set; } = [];
 }

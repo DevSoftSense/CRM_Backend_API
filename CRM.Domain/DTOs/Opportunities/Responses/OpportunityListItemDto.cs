@@ -10,6 +10,7 @@ public sealed class OpportunityListItemDto
     public long? LeadId { get; set; }
     public long? CampaignId { get; set; }
     public int StageId { get; set; }
+    public string? StageCode { get; set; }
     public string? StageName { get; set; }
     public int? OpportunityTypeId { get; set; }
     public string? OpportunityTypeName { get; set; }
@@ -26,6 +27,10 @@ public sealed class OpportunityListItemDto
     public int? PriorityId { get; set; }
     public string? PriorityName { get; set; }
     public string? NextStep { get; set; }
+    public string? ClosedReason { get; set; }
+    public string? Description { get; set; }
+    public string? Notes { get; set; }
+    public string? Territory { get; set; }
     public int? OwnerEmployeeId { get; set; }
     public string? OwnerName { get; set; }
     public DateTimeOffset CreatedAt { get; set; }

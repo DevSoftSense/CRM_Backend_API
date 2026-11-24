@@ -20,6 +20,7 @@ public sealed class LeadListItemDto
     public int? OwnerEmployeeId { get; set; }
     public string? OwnerName { get; set; }
     public long? CampaignId { get; set; }
+    public string? Description { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
     public long TotalCount { get; set; }

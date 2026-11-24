@@ -96,6 +96,23 @@ public sealed class OwnerRepository : IOwnerRepository
         }
     }
 
+    public async Task<OwnerDropdownItemDto?> GetOwnerByUserIdAsync(
+        int orgId, int appId, int userId, string? email = null, CancellationToken cancellationToken = default)
+    {
+        _ = cancellationToken;
+        try
+        {
+            var json = await CallAsync("get_by_user_id", orgId, appId, createdBy: userId, email: email);
+            if (string.IsNullOrWhiteSpace(json) || json == "null") return null;
+            return JsonSerializer.Deserialize<OwnerDropdownItemDto>(json, PostgresJsonOptions.Options);
+        }
+        catch (PostgresException ex)
+        {
+            _logger.LogError(ex, "PostgreSQL error in {Fn} get_by_user_id", Fn);
+            throw;
+        }
+    }
+
     public async Task<OwnerDetailDto> CreateOwnerAsync(
         int orgId, int appId, int createdBy, CreateOwnerRequest request, CancellationToken cancellationToken = default)
     {
